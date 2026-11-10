@@ -1,54 +1,66 @@
-import { Request, Response } from "express";
-import { BadRequestError } from "./errors.js";
-import { createChirp, getChirps } from "../db/queries/chirps.js";
+import type { Request, Response } from "express";
 
-const MAX_CHIRP_LENGTH = 140;
+import { respondWithJSON } from "./json.js";
+import { createChirp, getChirp, getChirps } from "../db/queries/chirps.js";
+import { BadRequestError, NotFoundError } from "./errors.js";
 
-const PROFANE_WORDS = ["kerfuffle", "sharbert", "fornax"];
+export async function handlerChirpsCreate(req: Request, res: Response) {
+  type parameters = {
+    body: string;
+    userId: string;
+  };
 
-type CreateChirpParams = {
-  body: string;
-  userId: string;
-};
+  const params: parameters = req.body;
 
-export async function handlerCreateChirp(req: Request, res: Response) {
-  const params = req.body as CreateChirpParams;
+  const cleaned = validateChirp(params.body);
+  const chirp = await createChirp({ body: cleaned, userId: params.userId });
 
-  if (params.body === undefined) {
-    res.status(400).json({
-      error: "Body is required.",
-    });
-    return;
-  }
-
-  if (params.userId === undefined) {
-    res.status(400).json({
-      error: "User ID is required.",
-    });
-    return;
-  }
-
-  const body = params.body;
-
-  if (body.length > MAX_CHIRP_LENGTH) {
-    throw new BadRequestError("Chirp is too long. Max length is 140");
-  }
-
-  const cleanedBody = PROFANE_WORDS.reduce(
-    (acc, word) => acc.replaceAll(new RegExp(word, "gi"), "****"),
-    body,
-  );
-
-  const chirp = await createChirp({ body: cleanedBody, userId: params.userId });
-
-  if (chirp === undefined) {
-    throw new Error("Error creating chirp.");
-  }
-
-  res.status(201).json(chirp);
+  respondWithJSON(res, 201, chirp);
 }
 
-export async function handlerGetChirps(req: Request, res: Response) {
+function validateChirp(body: string) {
+  const maxChirpLength = 140;
+  if (body.length > maxChirpLength) {
+    throw new BadRequestError(
+      `Chirp is too long. Max length is ${maxChirpLength}`,
+    );
+  }
+
+  const badWords = ["kerfuffle", "sharbert", "fornax"];
+  return getCleanedBody(body, badWords);
+}
+
+function getCleanedBody(body: string, badWords: string[]) {
+  const words = body.split(" ");
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    const loweredWord = word.toLowerCase();
+    if (badWords.includes(loweredWord)) {
+      words[i] = "****";
+    }
+  }
+
+  const cleaned = words.join(" ");
+  return cleaned;
+}
+
+export async function handlerChirpsRetrieve(_: Request, res: Response) {
   const chirps = await getChirps();
-  res.status(200).json(chirps);
+  respondWithJSON(res, 200, chirps);
+}
+
+export async function handlerChirpsGet(req: Request, res: Response) {
+  const { chirpId } = req.params;
+
+  if (typeof chirpId !== "string") {
+    throw new BadRequestError("Invalid chirp ID");
+  }
+
+  const chirp = await getChirp(chirpId);
+  if (!chirp) {
+    throw new NotFoundError(`Chirp with chirpId: ${chirpId} not found`);
+  }
+
+  respondWithJSON(res, 200, chirp);
 }

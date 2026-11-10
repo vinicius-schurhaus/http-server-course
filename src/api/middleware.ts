@@ -1,18 +1,23 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { config } from "../config.js";
-import { BadRequestError } from "./errors.js";
+import { respondWithError } from "./json.js";
+import {
+  BadRequestError,
+  NotFoundError,
+  UserForbiddenError,
+  UserNotAuthenticatedError,
+} from "./errors.js";
 
-export function middlewareLogResponses(
+export function middlewareLogResponse(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   res.on("finish", () => {
-    const status = res.statusCode;
-    if (status >= 400) {
-      console.log(
-        `[NON-OK] ${req.method} ${req.originalUrl} - Status: ${res.statusCode}`,
-      );
+    const statusCode = res.statusCode;
+
+    if (statusCode >= 300) {
+      console.log(`[NON-OK] ${req.method} ${req.url} - Status: ${statusCode}`);
     }
   });
 
@@ -20,30 +25,40 @@ export function middlewareLogResponses(
 }
 
 export function middlewareMetricsInc(
-  req: Request,
-  res: Response,
+  _: Request,
+  __: Response,
   next: NextFunction,
 ) {
-  config.api.fileserverHits++;
+  config.api.fileServerHits++;
   next();
 }
 
-export function errorHandler(
+export function errorMiddleWare(
   err: Error,
-  req: Request,
+  _: Request,
   res: Response,
-  next: NextFunction,
+  __: NextFunction,
 ) {
-  console.log(`Unexpected Error: ${err.message}`);
+  let statusCode = 500;
+  let message = "Something went wrong on our end";
 
   if (err instanceof BadRequestError) {
-    res.status(400).json({
-      error: err.message,
-    });
-    return;
+    statusCode = 400;
+    message = err.message;
+  } else if (err instanceof UserNotAuthenticatedError) {
+    statusCode = 401;
+    message = err.message;
+  } else if (err instanceof UserForbiddenError) {
+    statusCode = 403;
+    message = err.message;
+  } else if (err instanceof NotFoundError) {
+    statusCode = 404;
+    message = err.message;
   }
 
-  res.status(500).json({
-    error: "Something went wrong on our end",
-  });
+  if (statusCode >= 500) {
+    console.log(err.message);
+  }
+
+  respondWithError(res, statusCode, message);
 }
