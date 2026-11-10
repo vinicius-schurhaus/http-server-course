@@ -18,7 +18,7 @@ export async function handlerCreateUser(req: Request, res: Response) {
   const user = await createUser({ email: body.email });
 
   if (user === undefined) {
-    throw new Error("Erro ao criar usuário");
+    throw new Error("Error creating user.");
   }
 
   res.status(201).json({
