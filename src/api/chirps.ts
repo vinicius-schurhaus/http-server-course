@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { BadRequestError } from "./errors.js";
-import { createChirp } from "../db/queries/chirps.js";
+import { createChirp, getChirps } from "../db/queries/chirps.js";
 
 const MAX_CHIRP_LENGTH = 140;
 
@@ -45,11 +45,10 @@ export async function handlerCreateChirp(req: Request, res: Response) {
     throw new Error("Error creating chirp.");
   }
 
-  res.status(201).json({
-  id: chirp.id,
-  createdAt: chirp.createdAt,
-  updatedAt: chirp.updatedAt,
-  body: chirp.body,
-  userId: chirp.userId
-});
+  res.status(201).json(chirp);
+}
+
+export async function handlerGetChirps(req: Request, res: Response) {
+  const chirps = await getChirps();
+  res.status(200).json(chirps);
 }

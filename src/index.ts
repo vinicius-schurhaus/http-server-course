@@ -10,7 +10,7 @@ import {
   middlewareMetricsInc,
 } from "./api/middleware.js";
 import { handlerMetrics, handlerReset } from "./api/metrics.js";
-import { handlerCreateChirp } from "./api/chirps.js";
+import { handlerCreateChirp, handlerGetChirps } from "./api/chirps.js";
 import { config } from "./config.js";
 import { handlerCreateUser } from "./api/users.js";
 
@@ -35,6 +35,7 @@ function main(): void {
   app.get("/admin/metrics", handlerMetrics);
   app.post("/admin/reset", handlerReset);
   app.post("/api/users", handlerCreateUser);
+  app.get("/api/chirps", handlerGetChirps);
 
   app.use(errorHandler);
 
