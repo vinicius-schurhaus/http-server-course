@@ -15,6 +15,13 @@
       "when": 1794346696994,
       "tag": "0001_nappy_sir_ram",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794396949765,
+      "tag": "0002_serious_veda",
+      "breakpoints": true
     }
   ]
 }
