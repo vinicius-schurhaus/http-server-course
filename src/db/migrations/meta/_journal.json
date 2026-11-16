@@ -22,6 +22,13 @@
       "when": 1794396949765,
       "tag": "0002_serious_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794851277557,
+      "tag": "0003_public_random",
+      "breakpoints": true
     }
   ]
 }
