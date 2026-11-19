@@ -16,9 +16,7 @@ import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
 
 export async function handlerChirpsCreate(req: Request, res: Response) {
-  type parameters = {
-    body: string;
-  };
+  type parameters = { body: string };
 
   const params: parameters = req.body;
 
