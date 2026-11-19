@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1794322608232,
-      "tag": "0000_curvy_venus",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1794346696994,
-      "tag": "0001_nappy_sir_ram",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1794396949765,
-      "tag": "0002_serious_veda",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1794851277557,
-      "tag": "0003_public_random",
+      "when": 1795115749391,
+      "tag": "0000_red_jean_grey",
       "breakpoints": true
     }
   ]
